@@ -1,4 +1,4 @@
-branch-server
+branchr-server
 =============
 
 ## Installation
