@@ -1,7 +1,6 @@
+import {express, bodyParser} from 'npm';
 import * as config from 'config';
-import * as routes from 'routes';
-var express = require('express');
-var bodyParser = require('body-parser');
+import router from 'router';
 
 export function run() {
 	// Create new express app
@@ -21,7 +20,7 @@ export function run() {
 	app.use(bodyParser.json());
 
 	// Main router
-	app.use(routes.router())
+	app.use(router())
 
 	//// Start app
 

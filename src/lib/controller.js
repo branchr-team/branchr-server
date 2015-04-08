@@ -1,6 +1,7 @@
+import {express} from 'npm';
 export class Controller {
 	constructor(registerationFunction) {
-		this.router = require('express').Router();
+		this.router = express.Router();
 		registerationFunction(this.router);
 	}
 }
