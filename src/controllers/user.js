@@ -3,10 +3,14 @@ import * as UserService from 'services/user';
 
 export default new Controller((router) => {
 
-	router.post('/:name', (req, res) => {
-		if (req.params.name === 'foo') res.status(400).send({msg: 'name parameter cannot be foo'})
+	router.put('/:name', (req, res) => {
+		if (req.params.name === 'foo') {
+			res.status(400).send({msg: 'name parameter cannot be foo'});
+			return;
+		}
 		UserService.register({
-			name: req.params.name
+			name: req.params.name,
+
 		})
 			.then(user => {
 				res.status(200).send(user);
@@ -17,7 +21,10 @@ export default new Controller((router) => {
 	});
 
 	router.get('/:name', (req, res) => {
-		if (req.params.name === 'foo') res.status(400).send({msg: 'name parameter cannot be foo'})
+		if (req.params.name === 'foo') {
+			res.status(400).send({msg: 'name parameter cannot be foo'})
+			return;
+		}
 		UserService.getByName(req.params.name)
 			.then(user => {
 				res.status(200).send(user);
