@@ -34,4 +34,14 @@ export default new Controller((router) => {
 			});
 	});
 
+	router.get('/', (req, res) => {
+		UserService.getAll()
+			.then(users => {
+				res.status(200).send(users);
+			})
+			.catch(err => {
+				res.status(err.status || 500).send(err);
+			});
+	});
+
 });

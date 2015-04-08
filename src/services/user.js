@@ -23,3 +23,9 @@ export function getByName(name) {
 		});
 	});
 }
+
+export function getAll() {
+	return new Promise((resolve, reject) => {
+		users.find({}).toArray().then(resolve).catch(reject);
+	});
+}
