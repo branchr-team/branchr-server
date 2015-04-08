@@ -7,8 +7,13 @@
 	"start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "private": true,
+  "author": "Branchr Team",
   "license": "ISC",
+  "repository": {
+	  "type": "git",
+	  "url": "https://github.com/branchr-team/branchr-server.git"
+  },
   "dependencies": {
     "body-parser": "^1.12.2",
     "express": "^4.12.3",
