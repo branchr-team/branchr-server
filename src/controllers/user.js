@@ -34,6 +34,16 @@ export default new Controller((router) => {
 			});
 	});
 
+	router.delete('/:name', (req, res) => {
+		UserService.unregisterByName(req.params.name)
+			.then(result => {
+				res.status(200).send(result);
+			})
+			.catch(err => {
+				res.status(err.status || 500).send(err);
+			});
+	});
+
 	router.get('/', (req, res) => {
 		UserService.getAll()
 			.then(users => {

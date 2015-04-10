@@ -14,6 +14,15 @@ export function register(user) {
 	})
 }
 
+export function unregisterByName(name) {
+	return new Promise((resolve, reject) => {
+		console.log(`Unregistering user with name ${name}`);
+		users.remove({'name': name})
+			.then(result => resolve(result))
+			.catch(err => reject(err));
+	})
+}
+
 export function getByName(name) {
 	console.log(`Finding user by name ${name}`);
 	return users.findOne({'name': name}).then((result) => {
