@@ -10,7 +10,6 @@ export default new Controller((router) => {
 		}
 		UserService.register({
 			name: req.params.name,
-
 		})
 			.then(user => {
 				res.status(200).send(user);
