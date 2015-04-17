@@ -5,10 +5,10 @@ var users = db.collection('users');
 export function register(user) {
 	return new Promise((resolve, reject) => {
 		console.log(`Registering user with name ${user.name}`);
-		users.count({name: user.name})
+		users.count({username: user.username})
 			.then((count) => {
 				if (count == 0) users.insert(user).then(resolve).catch(reject);
-				else reject({code: 400, msg: "User already exists!"});
+				else reject({code: 400, msg: "User with that username already exists!"});
 			})
 			.catch(reject);
 	})
