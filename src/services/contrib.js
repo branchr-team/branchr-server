@@ -17,7 +17,7 @@ export function getById(id) {
 	}))
 	.then(result => {
 		return new Promise((resolve, reject) => {
-			if (result == null) reject({status: 404, msg: ''});
+			if (result == null) reject({status: 404, msg: 'fuck'});
 			else resolve(result);
 		});
 	});
