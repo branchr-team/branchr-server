@@ -13,7 +13,7 @@ export default function router() {
 	router.use('/user', UserController.router);
 	router.use('/feed', FeedController.router);
 	router.use('/contrib', ContribController.router);
-	router.use('/engines', EngineController.router);
+	router.use('/engine', EngineController.router);
 
 	return router;
 }
