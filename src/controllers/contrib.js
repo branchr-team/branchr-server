@@ -14,15 +14,16 @@ export default new Controller(router => {
 				res.status(err.status || 500).send(err);
 			});
 	});
-	router.get('/', (req, res) => {
+	router.get('', (req, res) => {
 		return contribs.find({
-			feedId: req.query.feedId
+			feedId: ObjectId(req.query.feedId)
 		})
 			.toArray()
 			.then(result => {
 				res.status(200).send(result)
 			})
 			.catch(err => {
+				console.log(err);
 				res.status(err.status || 500).send(err);
 			});
 	});
