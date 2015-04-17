@@ -23,7 +23,6 @@ export default new Controller(router => {
 				res.status(200).send(result)
 			})
 			.catch(err => {
-				console.log(err);
 				res.status(err.status || 500).send(err);
 			});
 	});
@@ -34,5 +33,11 @@ export default new Controller(router => {
 			feedId: ObjectId(req.body.feedId),
 			params: req.body.params
 		})
+			.then(result => {
+				res.status(200).send(result);
+			})
+			.catch(err => {
+				res.status(err.status || 500).send(err);
+			});
 	});
 });
