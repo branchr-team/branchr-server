@@ -1,9 +1,14 @@
-import {Controller} from 'lib/controller';
-import * as ContribService from 'services/contrib';
-export default new Controller((router) => {
-	router.get('/:contribId', (req, res) => {
-		ContribService.getById(req.params.contribId)
-			.then(result => res.status(200).send(result))
-			.catch(err => res.status(err.status || 500).send(err));
+import {db} from 'db';
+import {pmongo} from 'npm';
+var ObjectId = pmongo.ObjectId;
+
+var contribs = db.collection('contribs');
+
+export function getById(id) {
+	contribs.findOne({_id: ObjectId(id)}).then(result => {
+		return new Promise((resolve, reject) => {
+			if (result == null) reject({status: 404, msg: ''});
+			else resolve(result);
+		});
 	});
-});
+}
