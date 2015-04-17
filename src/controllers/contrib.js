@@ -6,7 +6,7 @@ var contribs = db.collection('contribs');
 
 export default new Controller(router => {
 	router.get('/:contribId', (req, res) => {
-		return contribs.findOne({_id: ObjectId(req.params.contribId)})
+		contribs.findOne({_id: ObjectId(req.params.contribId)})
 			.then(result => {
 				res.status(200).send(result)
 			})
@@ -15,7 +15,7 @@ export default new Controller(router => {
 			});
 	});
 	router.get('', (req, res) => {
-		return contribs.find({
+		contribs.find({
 			feedId: ObjectId(req.query.feedId)
 		})
 			.toArray()
@@ -26,5 +26,13 @@ export default new Controller(router => {
 				console.log(err);
 				res.status(err.status || 500).send(err);
 			});
+	});
+
+	router.post('' (req, res) => {
+		contribs.insert({
+			engineId: ObjectId(req.body.engineId),
+			feedId: ObjectId(req.body.feedId),
+			params: req.body.params
+		})
 	});
 });
