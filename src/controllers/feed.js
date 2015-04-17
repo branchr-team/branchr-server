@@ -6,7 +6,7 @@ var feeds = db.collection('feeds');
 
 export default new Controller((router) => {
 	router.get('/:feedId', (req, res) => {
-		engines.findOne({_id: ObjectId(req.params.feedId)})
+		feeds.findOne({_id: ObjectId(req.params.feedId)})
 			.then(result => {
 				res.status(200).send(result)
 			})
