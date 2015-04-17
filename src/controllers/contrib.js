@@ -27,7 +27,7 @@ export default new Controller(router => {
 			});
 	});
 
-	router.post('' (req, res) => {
+	router.post('', (req, res) => {
 		contribs.insert({
 			engineId: ObjectId(req.body.engineId),
 			feedId: ObjectId(req.body.feedId),
