@@ -3,8 +3,8 @@ import * as UserService from 'services/user';
 
 export default new Controller((router) => {
 
-	// PUT {base}/user/:name
-	router.put('/:name', (req, res) => {
+	// POST {base}/user Register a user.
+	router.post('', (req, res) => {
 		UserService.register(req.body)
 			.then(user => {
 				res.status(200).send(user);
