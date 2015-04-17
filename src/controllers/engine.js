@@ -1,7 +1,6 @@
 import {Controller} from 'lib/controller';
 import {db} from 'db';
-import {pmongo} from 'npm';
-var ObjectId = pmongo.ObjectId;
+import {pmongo,ObjectId} from 'npm';
 
 var engines = db.collection('engines');
 
