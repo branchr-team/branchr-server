@@ -4,7 +4,7 @@ var users = db.collection('users');
 
 export function register(user) {
 	return new Promise((resolve, reject) => {
-		console.log(`Registering user with name ${user.name}`);
+		console.log(`Registering user with name ${user.username}`);
 		users.count({username: user.username})
 			.then((count) => {
 				if (count == 0) users.insert(user).then(resolve).catch(reject);
@@ -14,20 +14,20 @@ export function register(user) {
 	})
 }
 
-export function unregisterByName(name) {
+export function unregisterByName(username) {
 	return new Promise((resolve, reject) => {
-		console.log(`Unregistering user with name ${name}`);
-		users.remove({'name': name})
+		console.log(`Unregistering user with name ${username}`);
+		users.remove({username: username})
 			.then(result => resolve(result))
 			.catch(err => reject(err));
 	})
 }
 
-export function getByName(name) {
-	console.log(`Finding user by name ${name}`);
-	return users.findOne({'name': name}).then((result) => {
+export function getByName(username) {
+	console.log(`Finding user by name ${username}`);
+	return users.findOne({username: username}).then((result) => {
 		return new Promise((resolve, reject) => {
-			if (result == null) reject({status: 404, msg: `Could not find user ${name}!`});
+			if (result == null) reject({status: 404, msg: `Could not find user ${username}!`});
 			else resolve(result);
 		});
 	});
