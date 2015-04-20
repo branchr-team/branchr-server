@@ -24,7 +24,6 @@ export function run() {
 	app.use(router())
 
 	//// Start app
-
 	return app.listen(config.PORT, function() {
 		console.log(`Listening on port ${config.PORT}`);
 	});

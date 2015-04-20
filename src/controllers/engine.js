@@ -1,17 +1,17 @@
 import {Controller} from 'lib/controller';
-import {db} from 'db';
-import {pmongo,ObjectId} from 'npm';
-
-var engines = db.collection('engines');
+import {Engine} from 'models/engine';
 
 export default new Controller(router => {
+
 	router.get('/:engineId', (req, res) => {
-		engines.findOne({_id: ObjectId(req.params.engineId)})
-			.then(result => {
-				res.status(200).send(result)
-			})
-			.catch(err => {
+		Engine.findById(req.params.engineId, function(err, result) {
+			if (err) 
 				res.status(err.status || 500).send(err);
-			});
+			else if (!result)
+				res.status(404).send();
+			else
+				res.status(200).send(result);
+		});
 	});
+
 });
