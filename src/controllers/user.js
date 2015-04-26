@@ -1,47 +1,53 @@
 import {Controller} from 'lib/controller';
-import * as UserService from 'services/user';
+import {Users} from 'models/users';
 
-export default new Controller((router) => {
+export default new Controller(router => {
 
-	// POST {base}/user
-	router.post('', (req, res) => {
-		UserService.register(req.body)
-			.then(user => {
-				res.status(200).send(user);
-			})
-			.catch(err => {
-				res.status(err.status || 500).send(err);
-			});
-	});
+        router.get('/:username', (req, res) => {
+                Users.findById(req.params.username, function(err, result) {
+                        if (err)
+                                res.status(err.status || 500).send(err);
+                        else if (!result)
+                                res.status(404).send();
+                        else
+                                res.status(200).send(result);
+                });
+        });
 
-	router.get('/:username', (req, res) => {
-		UserService.getByName(req.params.username)
-			.then(user => {
-				res.status(200).send(user);
-			})
-			.catch(err => {
-				res.status(err.status || 500).send(err);
-			});
-	});
+        router.delete('/:username', (req, res) => {
+                Users.findByIdAndRemove(req.params.username, function(err, result) {
+                        if (err)
+                                res.status(err.status || 500).send(err);
+                        else if (!result)
+                                res.status(404).send();
+                        else
+                                res.status(200).send(result);
+                });
+        });
+	
+	 router.post('', (req, res) => {
+                Users.create({
+                        username: req.body.username
+                }, function(err, result) {
+                        if (err)
+                                res.status(err.status || 500).send(err);
+                        else
+                                res.status(200).send(result);
+                });
+        });
 
-	router.delete('/:username', (req, res) => {
-		UserService.unregisterByName(req.params.username)
-			.then(result => {
-				res.status(200).send(result);
-			})
-			.catch(err => {
-				res.status(err.status || 500).send(err);
-			});
-	});
-
-	router.get('/', (req, res) => {
-		UserService.getAll()
-			.then(users => {
-				res.status(200).send(users);
-			})
-			.catch(err => {
-				res.status(err.status || 500).send(err);
-			});
-	});
+        router.get('/', (req, res) => {
+                let query = {};
+                if (req.query.username)
+                        query.username = req.query.username;
+                Users.find(query, function(err, result) {
+                        if (err)
+                                res.status(err.status || 500).send(err);
+                        else
+                                res.status(200).send(result);
+                });
+        });
 
 });
+
+
