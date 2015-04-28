@@ -14,4 +14,13 @@ export default new Controller(router => {
 		});
 	});
 
+	router.post('', (req, res) => {
+		Engine.create(req.body, function(err, result) {
+			if (err) 
+				res.status(err.status || 500).send(err);
+			else
+				res.status(200).send(result);
+		});
+	});
+
 });

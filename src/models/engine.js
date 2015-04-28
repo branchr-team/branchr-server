@@ -8,15 +8,18 @@ var engineSchema = new mongoose.Schema({
 	},
 	'js': {
 		type: String,
-		required: true
+		default: "",
+		required: false
 	},
 	'html': {
 		type: String,
-		required: true
+		default: "",
+		required: false
 	},
 	'css': {
 		type: String,
-		required: true
+		default: "",
+		required: false
 	},
 	'fields': [{
 		'key': {
