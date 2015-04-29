@@ -55,6 +55,10 @@ export default new Controller((router) => {
 				})
 		});
 	});
+	
+	
+	
+	
 
 	router.post('/logout', (req, res) => {
 		User.findOne({username: req.body.username}, function(err, result) {
