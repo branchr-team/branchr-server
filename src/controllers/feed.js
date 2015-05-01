@@ -46,7 +46,7 @@ export default new Controller(router => {
 			else {
                 if (!result || !result.permissions || !result.permissions.owners)
                     res.status(500).send(result);
-				else if (result.permissions.owners.indexOf(req.user._id.toString()) !== -1) {
+				else if (result.permissions.owners.map(o => o.toString()).indexOf(req.user._id.toString()) !== -1) {
 					Feed.findOneAndUpdate(result._id, req.body, {new: true}, function(err, result2) {
 						if (err) 
 							res.status(500).send(err);
@@ -57,7 +57,8 @@ export default new Controller(router => {
 					res.status(403).send({
                         msg: "User does not belong to feed's owners.",
                         owners: result.permissions.owners,
-                        user: req.user
+                        user: req.user,
+                        truthiness: result.permissions.owners.indexOf(req.user._id)
                     });
 			}
 		});
