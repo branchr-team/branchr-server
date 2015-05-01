@@ -4,8 +4,8 @@ import {User} from 'models/user';
 
 export function auth(req, res, next) {
 	User.findOne({
-		username: req.get('X-Username'),
-		token: req.get('X-Token')
+		username:   req.get('X-Username'),
+		token:      req.get('X-Token')
 	}, function(err, result) {
 		if (err) 
 			res.status(500).send(err);

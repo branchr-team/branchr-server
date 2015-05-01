@@ -21,7 +21,7 @@ export function run() {
 	app.use(bodyParser.json());
 
 	// Main router
-	app.use(router())
+	app.use(router());
 
 	//// Start app
 	return app.listen(config.PORT, function() {
