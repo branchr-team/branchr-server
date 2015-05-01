@@ -10,7 +10,7 @@ var feedSchema = new mongoose.Schema({
 	'permissions': {
 		type: {
 			'owners': {
-				type: [String],
+				type: [Types.ObjectId],
 				required: true
 			}
 			//'editors': {
