@@ -26,7 +26,7 @@ var feedSchema = new mongoose.Schema({
 		type: Types.ObjectId,
 		required: true
 	},
-	'title': {
+	'name': {
 		type: String,
 		required: true
 	},
