@@ -50,6 +50,8 @@ export default new Controller(router => {
 		let query = {};
 		if (req.query.feedId) 
 			query.feedId = req.query.feedId;
+        if (req.query.userId)
+            query.userId = req.query.userId;
 		Contrib.find(query, function(err, result) {
 			if (err) 
 				res.status(500).send(err);
