@@ -36,7 +36,7 @@ export default new Controller(router => {
 
 	// POST /contrib
 	router.post('', auth, (req, res) => {
-        req.body.userId = auth.user._id;
+        req.body.userId = req.user._id;
 		Contrib.create(req.body, function(err, result) {
 			if (err) 
 				res.status(500).send(err);
