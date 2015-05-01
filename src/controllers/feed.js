@@ -38,6 +38,7 @@ export default new Controller(router => {
 
 	// Update an existing Feed
 	router.put('/:feedId', auth, (req, res) => {
+        console.log(req.params.feedId);
 		Feed.findOne(req.params.feedId, function(err, result) {
 			if (err) 
 				res.status(500).send(err);
