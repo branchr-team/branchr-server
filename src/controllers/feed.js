@@ -54,7 +54,11 @@ export default new Controller(router => {
 					});
 				}
 				else
-					res.status(403).send({msg: "User does not belong to feed's owners.", owners: result.permissions.owners});
+					res.status(403).send({
+                        msg: "User does not belong to feed's owners.",
+                        owners: result.permissions.owners,
+                        user: req.user
+                    });
 			}
 		});
 	});
