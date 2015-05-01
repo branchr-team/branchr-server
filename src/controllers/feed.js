@@ -6,7 +6,7 @@ export default new Controller(router => {
 	router.get('/:feedId', (req, res) => {
 		Feed.findById(req.params.feedId, function(err, result) {
 			if (err) 
-				res.status(err.status || 500).send(err);
+				res.status(500).send(err);
 			else if (!result)
 				res.status(404).send();
 			else
@@ -30,7 +30,7 @@ export default new Controller(router => {
 		};
 		Feed.create(req.body, function(err, result) {
 			if (err) 
-				res.status(err.status || 500).send(err);
+				res.status(500).send(err);
 			else
 				res.status(200).send(result);
 		});
@@ -40,10 +40,11 @@ export default new Controller(router => {
 	router.put('/:feedId', auth, (req, res) => {
 		Feed.findOne(req.params.feedId, function(err, result) {
 			if (err) 
-				res.status(err.status || 500).send(err);
+				res.status(500).send(err);
 			else if (!result)
 				res.status(404).send();
 			else {
+                console.log(result);
 				if (result.permissions['owners'].indexOf(req.user.username) !== -1) {
 					Feed.findOneAndUpdate(result._id, req.body, {new: true}, function(err, result2) {
 						if (err) 
