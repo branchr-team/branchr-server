@@ -47,7 +47,7 @@ export default new Controller(router => {
                 if (!result || !result.permissions || !result.permissions.owners)
                     res.status(500).send(result);
 				else if (result.permissions.owners.map(o => o.toString()).indexOf(req.user._id.toString()) !== -1) {
-					Feed.findOneAndUpdate(result._id, req.body, {new: true}, function(err, result2) {
+					Feed.findOneAndUpdate(req.params.feedId, req.body, {new: true}, function(err, result2) {
 						if (err) 
 							res.status(500).send(err);
 						res.status(200).send(result2);
