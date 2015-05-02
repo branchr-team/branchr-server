@@ -7,6 +7,10 @@ var contribSchema = new mongoose.Schema({
 		default: Date.now,
 		required: false
 	},
+    'userId': {
+        type: Types.ObjectId,
+        required: true
+    },
 	'engineId': {
 		type: Types.ObjectId,
 		required: true
