@@ -1,47 +1,80 @@
+import {bcrypt} from 'npm';
 import {Controller} from 'lib/controller';
-import * as UserService from 'services/user';
+import {User} from 'models/user';
+import {auth} from 'controllers/auth';
 
 export default new Controller((router) => {
 
-	// POST {base}/user
-	router.post('', (req, res) => {
-		UserService.register(req.body)
-			.then(user => {
-				res.status(200).send(user);
-			})
-			.catch(err => {
-				res.status(err.status || 500).send(err);
-			});
+	router.get('/:username', (req, res) => {
+		User.findOne(req.params.username, function(err, result) {
+			if (err) 
+				res.status(500).send(err);
+			else if (!result)
+				res.status(404).send();
+			else
+				res.status(200).send(result.toJSON());
+		});
 	});
 
-	router.get('/:username', (req, res) => {
-		UserService.getByName(req.params.username)
-			.then(user => {
-				res.status(200).send(user);
-			})
-			.catch(err => {
-				res.status(err.status || 500).send(err);
+	router.get('', auth, (req, res) => {
+		User.findOne(req.user._id, function(err, result) {
+			if (err) 
+				res.status(500).send(err);
+			else if (!result)
+				res.status(404).send();
+			else
+				res.status(200).send(result.toJSON());
+		});
+	});
+
+	router.post('/:username', (req, res) => {
+		req.body.username = req.params.username;
+		req.body.passHash = bcrypt.hashSync(req.body.password);
+		User.count({username: req.params.username}, function(err, result) {
+			if (err) 
+				res.status(500).send(err);
+			else if (result != 0)
+				res.status(400).send({msg: "username already exists"});
+			else
+				User.create(req.body, function(err, result) {
+					if (err) 
+						res.status(500).send(err);
+					else if (!result)
+						res.status(404).send();
+					else
+						res.status(200).send(result);
+				});
+		});
+	});
+
+	router.put('/:username', auth, (req, res) => {
+		if (req.user.username !== req.params.username)
+			return res.status(403).send();
+		if (req.body.password)
+			req.body.passHash = bcrypt.hashSync(req.body.password);
+		User.findOneAndUpdate(
+			{username: req.params.username}, 
+			req.body, 
+			{new: true, upsert: true}, 
+			function(err, result) {
+				if (err) 
+					res.status(err.status || 500).send(err);
+				else if (!result)
+					res.status(404).send();
+				else
+					res.status(200).send(result);
 			});
 	});
 
 	router.delete('/:username', (req, res) => {
-		UserService.unregisterByName(req.params.username)
-			.then(result => {
+		User.findOneAndRemove({username: req.params.username}, function(err, result) {
+			if (err) 
+				res.status(500).send(err);
+			else if (!result)
+				res.status(404).send();
+			else
 				res.status(200).send(result);
-			})
-			.catch(err => {
-				res.status(err.status || 500).send(err);
-			});
-	});
-
-	router.get('/', (req, res) => {
-		UserService.getAll()
-			.then(users => {
-				res.status(200).send(users);
-			})
-			.catch(err => {
-				res.status(err.status || 500).send(err);
-			});
+		});
 	});
 
 });

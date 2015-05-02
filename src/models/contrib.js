@@ -22,6 +22,25 @@ var contribSchema = new mongoose.Schema({
 	'params': {
 		type: Types.Mixed,
 		required: true
+	},
+	'tags': {
+		type: [String],
+		required: false,
+		default: []
+	},
+	'citations': {
+		type: [{
+			'href': {
+				type: String,
+				required: false
+			},
+			'name': {
+				type: String,
+				required: true
+			}
+		}],
+		required: false,
+		default: []
 	}
 });
 

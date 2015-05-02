@@ -1,6 +1,11 @@
 import {mongoose} from 'npm';
+var Types = mongoose.Schema.Types;
 
 var engineSchema = new mongoose.Schema({
+    'feedId': {
+        type: Types.ObjectId,
+        required: true
+    },
 	'created': {
 		type: Date,
 		default: Date.now,
@@ -8,15 +13,18 @@ var engineSchema = new mongoose.Schema({
 	},
 	'js': {
 		type: String,
-		required: true
+		default: "",
+		required: false
 	},
 	'html': {
 		type: String,
-		required: true
+		default: "",
+		required: false
 	},
 	'css': {
 		type: String,
-		required: true
+		default: "",
+		required: false
 	},
 	'fields': [{
 		'key': {
