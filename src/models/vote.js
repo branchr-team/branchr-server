@@ -1,35 +1,26 @@
 import {mongoose} from 'npm';
 var Types = mongoose.Schema.Types;
+import 'models/user';
+import 'models/contrib';
 
-var userSchema = new mongoose.Schema({
-	'created': {
-		type: Date,
-		required: false,
-		default: Date.now
-	},
-	'username': {
-		type: String,
-		required: true
-	},
-	'passHash': {
-		type: String,
-		required: true
-	},
-	'token': {
-		type: String,
-		required: false
-	},
-	'settings': {
-		type: Types.Mixed,
-		default: {}
-	}
+var voteSchema = new mongoose.Schema({
+    'user': {
+        type: Types.ObjectId,
+        required: true,
+        ref: 'user'
+    },
+    'contrib': {
+        type: Types.ObjectId,
+        required: true,
+        ref: 'contrib'
+    },
+    'vote': {
+        type: Number,
+        required: true,
+        validator(v) {
+            return v == -1 || v == 1 || v == 0;
+        }
+    }
 });
 
-userSchema.method('toJSON', function() {
-	var user = this.toObject();
-	delete user.passHash;
-	delete user.token;
-	return user;
-});
-
-export var User = mongoose.model('user', userSchema);
+export var Vote = mongoose.model('vote', voteSchema);

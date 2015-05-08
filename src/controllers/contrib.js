@@ -1,6 +1,7 @@
 import {Controller} from 'lib/controller';
 import {Contrib} from 'models/contrib';
 import {User} from 'models/user';
+import {Vote} from 'models/vote';
 import {auth} from 'controllers/auth';
 
 export default new Controller(router => {
@@ -56,6 +57,34 @@ export default new Controller(router => {
         });
     });
 
+    router.post('/:contribId/vote/:vote', auth, (req, res) => {
+        Vote.findOneAndUpdate(
+            {contrib: req.params.contribId},
+            {$set: {contrib: req.params.contribId, user: req.user._id, vote: req.params.vote}},
+            {upsert: true}
+        )
+            .exec(function(err, result) {
+                console.log(err, result);
+                if (err)
+                    res.status(500).send(err);
+                else {
+                    let diff = req.params.vote - result.vote;
+                    Contrib.findOneAndUpdate(
+                        {_id: req.params.contribId},
+                        {$inc: {score: diff}},
+                        {new: true}
+                    )
+                        .exec(function(err, result) {
+                            if (err)
+                                res.status(500).send(err);
+                            else
+                                res.status(200).send(result);
+                        });
+                }
+        });
+    });
+
+
     // GET /contrib/?feedId=<id>
     router.get('/', (req, res) => {
         let query = {};
@@ -81,5 +110,6 @@ export default new Controller(router => {
                 });
         });
     });
+
 
 });
