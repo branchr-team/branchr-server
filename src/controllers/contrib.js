@@ -8,7 +8,7 @@ export default new Controller(router => {
     router.get('/:contribId', (req, res) => {
         let dbQuery = Contrib.findById(req.params.contribId);
         dbQuery.populate('creator', 'username');
-        dbQuery.populate('feed', 'name, owners');
+        dbQuery.populate('feed', 'name owners');
         dbQuery.exec(function(err, result) {
             if (err)
                 res.status(500).send(err);
@@ -66,7 +66,7 @@ export default new Controller(router => {
 
         let dbQuery = Contrib.find(query);
         dbQuery.populate('creator', 'username');
-        dbQuery.populate('feed', 'name, owners');
+        dbQuery.populate('feed', 'name owners');
         dbQuery.exec(function(err, result) {
             if (err)
                 res.status(500).send(err);
