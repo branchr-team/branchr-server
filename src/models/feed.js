@@ -1,30 +1,22 @@
 import {mongoose} from 'npm';
 var Types = mongoose.Schema.Types;
+import 'models/user';
 
 var feedSchema = new mongoose.Schema({
 	'created': {
 		type: Date,
 		required: false,
-		default: Date.now
-	},
-	'permissions': {
-		type: {
-			'owners': {
-				type: [Types.ObjectId],
-				required: true
-			}
-			//'editors': {
-				//type: [String]
-			//},
-			//'moderators': {
-				//type: [String]
-			//}
-		},
-		required: true
-	},
-	'engineId': {
+        default: Date.now
+    },
+    'owners': [{
+        type: Types.ObjectId,
+        required: true,
+        ref: 'user'
+    }],
+	'engine': {
 		type: Types.ObjectId,
-		required: true
+		required: true,
+        ref: 'engine'
 	},
 	'name': {
 		type: String,

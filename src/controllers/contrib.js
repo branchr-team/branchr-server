@@ -5,14 +5,17 @@ import {auth} from 'controllers/auth';
 export default new Controller(router => {
 
 	router.get('/:contribId', (req, res) => {
-		Contrib.findById(req.params.contribId, function(err, result) {
-			if (err) 
-				res.status(err.status || 500).send(err);
-			else if (!result)
-				res.status(404).send();
-			else
-				res.status(200).send(result);
-		});
+        let dbQuery = Contrib.findById(req.params.contribId);
+        dbQuery.populate('creator', 'username');
+        dbQuery.populate('feed');
+        dbQuery.exec(function(err, result) {
+            if (err)
+                res.status(err.status || 500).send(err);
+            else if (!result)
+                res.status(404).send();
+            else
+                res.status(200).send(result);
+        });
 	});
 
 	// DELETE /contrib/:contribId
@@ -49,15 +52,19 @@ export default new Controller(router => {
 	router.get('/', (req, res) => {
 		let query = {};
 		if (req.query.feedId) 
-			query.feedId = req.query.feedId;
+			query.feed = req.query.feedId;
         if (req.query.userId)
-            query.userId = req.query.userId;
-		Contrib.find(query, function(err, result) {
-			if (err) 
-				res.status(500).send(err);
-			else
-				res.status(200).send(result);
-		});
-	});
+            query.creator = req.query.userId;
+
+		let dbQuery = Contrib.find(query);
+        dbQuery.populate('creator', 'username');
+        dbQuery.populate('feed', 'name');
+        dbQuery.exec(function(err, result) {
+            if (err)
+                res.status(500).send(err);
+            else
+                res.status(200).send(result);
+        });
+    });
 
 });

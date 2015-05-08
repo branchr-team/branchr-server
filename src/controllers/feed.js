@@ -4,7 +4,9 @@ import {auth} from 'controllers/auth';
 export default new Controller(router => {
 
 	router.get('/:feedId', (req, res) => {
-		Feed.findById(req.params.feedId, function(err, result) {
+		Feed.findById(req.params.feedId)
+            .populate('owners', 'username')
+            .exec(function(err, result) {
 			if (err) 
 				res.status(500).send(err);
 			else if (!result)
@@ -15,7 +17,9 @@ export default new Controller(router => {
 	});
 
 	router.get('/', (req, res) => {
-		Feed.find({}, function(err, results) {
+		Feed.find({})
+            .populate('owners')
+            .exec(function(err, results) {
 			if (err) 
 				res.status(err.status || 500).send(err);
 			else
@@ -25,9 +29,7 @@ export default new Controller(router => {
 
 	// Make a new Feed
 	router.post('', auth, (req, res) => {
-		if (!req.body.permissions) req.body.permissions = {
-			'owners': [req.user.username]
-		};
+		if (!req.body.owners) req.body.owners = [req.user.username];
 		Feed.create(req.body, function(err, result) {
 			if (err) 
 				res.status(500).send(err);
@@ -38,34 +40,33 @@ export default new Controller(router => {
 
 	// Update an existing Feed
 	router.put('/:feedId', auth, (req, res) => {
-        console.log(req.params.feedId, req.body._id);
-		Feed.findOne(req.params.feedId, function(err, result) {
+		Feed.findOne(req.params.feedId)
+            .populate('owners')
+            .exec(function(err, result) {
 			if (err) 
 				res.status(500).send(err);
 			else if (!result)
 				res.status(404).send();
 			else {
-                if (!result || !result.permissions || !result.permissions.owners)
-                    res.status(500).send(result);
-				else if (result.permissions.owners.map(o => o.toString()).indexOf(req.user._id.toString()) !== -1) {
-					Feed.findOneAndUpdate(
+                if (result.owners.map(o => o._id.toString()).indexOf(req.user._id.toString()) !== -1) {
+                    Feed.findOneAndUpdate(
                         {_id: req.params.feedId},
                         req.body,
                         {new: true},
-                        function(err, result2) {
+                        function (err, result2) {
                             if (err)
                                 res.status(500).send(err);
                             res.status(200).send(result2);
-					});
-				}
-				else
-					res.status(403).send({
+                        });
+                } else {
+                    res.status(403).send({
                         msg: "User does not belong to feed's owners.",
-                        owners: result.permissions.owners,
+                        owners: result.owners,
                         user: req.user,
-                        truthiness: result.permissions.owners.indexOf(req.user._id)
+                        truthiness: result.owners.indexOf(req.user._id)
                     });
-			}
+                }
+            }
 		});
 	});
 

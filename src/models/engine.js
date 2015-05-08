@@ -2,7 +2,7 @@ import {mongoose} from 'npm';
 var Types = mongoose.Schema.Types;
 
 var engineSchema = new mongoose.Schema({
-    'feedId': {
+    'feed': {
         type: Types.ObjectId,
         required: true
     },

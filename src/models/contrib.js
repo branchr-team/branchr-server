@@ -1,4 +1,7 @@
 import {mongoose} from 'npm';
+import 'models/user';
+import 'models/feed';
+import 'models/engine';
 var Types = mongoose.Schema.Types;
 
 var contribSchema = new mongoose.Schema({
@@ -7,18 +10,25 @@ var contribSchema = new mongoose.Schema({
 		default: Date.now,
 		required: false
 	},
-    'userId': {
+    'creator': {
         type: Types.ObjectId,
+        required: true,
+        ref: 'user'
+    },
+	'engine': {
+		type: Types.ObjectId,
+		required: true,
+        ref: 'engine'
+	},
+	'feed': {
+		type: Types.ObjectId,
+		required: true,
+        ref: 'feed'
+	},
+    'title': {
+        type: String,
         required: true
     },
-	'engineId': {
-		type: Types.ObjectId,
-		required: true
-	},
-	'feedId': {
-		type: Types.ObjectId,
-		required: true
-	},
 	'params': {
 		type: Types.Mixed,
 		required: true
