@@ -15,7 +15,8 @@ var feedSchema = new mongoose.Schema({
     }],
 	'engine': {
 		type: Types.ObjectId,
-		required: true,
+		required: false,
+        default: null,
         ref: 'engine'
 	},
 	'name': {

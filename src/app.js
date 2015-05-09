@@ -6,8 +6,6 @@ export function run() {
 	// Create new express app
 	var app = new express();
 
-	//// Load middleware
-
 	// CORS
 	app.use(function(req, res, next) {
 	  res.header("Access-Control-Allow-Origin", "*");
