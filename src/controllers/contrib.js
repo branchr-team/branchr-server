@@ -68,7 +68,7 @@ export default new Controller(router => {
                 if (err)
                     res.status(500).send(err);
                 else {
-                    let diff = req.params.vote - result.vote;
+                    let diff = (result)? req.params.vote - result.vote : req.params.vote;
                     Contrib.findOneAndUpdate(
                         {_id: req.params.contribId},
                         {$inc: {score: diff}},
