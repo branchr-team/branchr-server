@@ -42,7 +42,7 @@ export default new Controller(router => {
 	});
 
     router.put('/:feedId/engine', auth, (req, res) => {
-        req.body._id = null;
+        delete req.body._id;
         Feed.findById(req.params.feedId)
             .populate('owners')
             .exec(function(err, result) {
@@ -57,7 +57,7 @@ export default new Controller(router => {
                         console.log(`Old engine ${result.engine}`);
                         console.log(req.body);
                         Engine.create(req.body, function(err2, result2) {
-                            console.log(`New engine ${result2._id}`);
+                            console.log(`New engine`, result2);
                             if (err2)
                                 res.status(500).send(err2);
                             else if (!result2)
