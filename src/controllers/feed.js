@@ -46,16 +46,15 @@ export default new Controller(router => {
         Feed.findById(req.params.feedId)
             .populate('owners')
             .exec(function(err, result) {
-                console.log(result.owners, req.user.username);
                 if (err)
                     res.status(500).send(err);
                 else if (!result)
                     res.status(404).send();
                 else {
                     if (result.owners.reduce((prev, cur) => prev || cur.username === req.user.username, false)) {
-                        console.log(`Engine update for feed ${result._id}`);
+                        console.log(`Engine update for feed ${result._id}, this should be null: ${req.body._id}`);
                         Engine.create(req.body, function(err2, result2) {
-                            console.log(`New engine`, result2);
+                            console.log(`New engine ${result2._id}`);
                             if (err2)
                                 res.status(500).send(err2);
                             else if (!result2)
