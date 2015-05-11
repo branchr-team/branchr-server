@@ -42,6 +42,7 @@ export default new Controller(router => {
 	});
 
     router.put('/:feedId/engine', auth, (req, res) => {
+        req.body._id = null;
         Feed.findById(req.params.feedId)
             .populate('owners')
             .exec(function(err, result) {
@@ -52,7 +53,9 @@ export default new Controller(router => {
                     res.status(404).send();
                 else {
                     if (result.owners.reduce((prev, cur) => prev || cur.username === req.user.username, false)) {
+                        console.log("Engine update for feed ", result._id, result.engine);
                         Engine.create(req.body, function(err2, result2) {
+                            console.log(result2._id);
                             if (err2)
                                 res.status(500).send(err2);
                             else if (!result2)
@@ -65,9 +68,9 @@ export default new Controller(router => {
                                     function (err3, result3) {
                                         if (err3)
                                             res.status(500).send(err3);
-                                        else
+                                        else {
                                             res.status(200).send(result3);
-                                        //if (result.engine)
+                                            //if (result.engine)
                                             //Contrib.count({engine: result.engine}, function(err4, result4) {
                                             //    console.log(`Found ${result4} contribs using this engine.`);
                                             //    if (result4 === 0) {
@@ -77,6 +80,7 @@ export default new Controller(router => {
                                             //        });
                                             //    }
                                             //});
+                                        }
                                     });
                         });
                     } else {
