@@ -27,10 +27,9 @@ export default new Controller((router) => {
 		});
 	});
 
-	router.post('/:username', (req, res) => {
-		req.body.username = req.params.username;
+	router.post('', (req, res) => {
 		req.body.passHash = bcrypt.hashSync(req.body.password);
-		User.count({username: req.params.username}, function(err, result) {
+		User.count({username: req.body.username}, function(err, result) {
 			if (err) 
 				res.status(500).send(err);
 			else if (result != 0)

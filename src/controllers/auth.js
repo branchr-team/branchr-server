@@ -22,11 +22,11 @@ export default new Controller((router) => {
 
 	router.post('/login', (req, res) => {
 		User.findOne({username: req.body.username}, function(err, result) {
-			if (err) 
+			if (err)
 				res.status(500).send(err);
 			else if (!result)
 				res.status(404).send();
-			else 
+			else
 				bcrypt.compare(req.body.password, result.passHash, (err, match) => {
 					if (err) 
 						res.status(500).send(err);
