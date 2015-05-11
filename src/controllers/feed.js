@@ -54,8 +54,6 @@ export default new Controller(router => {
                 else {
                     if (result.owners.reduce((prev, cur) => prev || cur.username === req.user.username, false)) {
                         console.log(`Engine update for feed ${result._id}`);
-                        console.log(`Old engine ${result.engine}`);
-                        console.log(req.body);
                         Engine.create(req.body, function(err2, result2) {
                             console.log(`New engine`, result2);
                             if (err2)
