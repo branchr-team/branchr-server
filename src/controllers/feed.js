@@ -42,7 +42,7 @@ export default new Controller(router => {
 	});
 
     router.get('/engine/:feedId', auth, (req, res) => {
-        Feed.findOne(req.params.feedId)
+        Feed.findById(req.params.feedId)
             .populate('owners')
             .exec(function(err, result) {
                 console.log(result.owners, req.user.username);
@@ -51,7 +51,7 @@ export default new Controller(router => {
     });
 
     router.put('/:feedId/engine', auth, (req, res) => {
-        Feed.findOne(req.params.feedId)
+        Feed.findById(req.params.feedId)
             .populate('owners')
             .exec(function(err, result) {
                 console.log(result.owners, req.user.username);
@@ -102,7 +102,7 @@ export default new Controller(router => {
 
 	// Update an existing Feed
 	router.put('/:feedId', auth, (req, res) => {
-		Feed.findOne(req.params.feedId)
+		Feed.findById(req.params.feedId)
             .populate('owners')
             .exec(function(err, result) {
 			if (err) 
