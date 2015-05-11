@@ -43,13 +43,14 @@ export default new Controller(router => {
 
     router.put('/:feedId/engine', auth, (req, res) => {
         Feed.findOne(req.params.feedId)
+            .populate('owners')
             .exec(function(err, result) {
                 if (err)
                     res.status(500).send(err);
                 else if (!result)
                     res.status(404).send();
                 else {
-                    if (result.owners.map(o => o.toString()).indexOf(req.user._id.toString()) !== -1) {
+                    if (result.owners.reduce((prev, cur) => prev || cur.username === req.user.username, false)) {
                         Engine.create(req.body, function(err2, result2) {
                             if (err2)
                                 res.status(500).send(err2);
@@ -63,12 +64,8 @@ export default new Controller(router => {
                                     function (err3, result3) {
                                         if (err3)
                                             res.status(500).send(err3);
-                                        User.populate(result, {path: 'owners', select: 'username'}, function(err5, result5) {
-                                            if (err2)
-                                                res.status(500).send(err5);
-                                            else
-                                                res.status(200).send(result5);
-                                        });
+                                        else
+                                            res.status(200).send(result3);
                                         if (result.engine)
                                             Contrib.count({engine: result.engine}, function(err4, result4) {
                                                 console.log(`Found ${result4} contribs using this engine.`);
@@ -86,7 +83,7 @@ export default new Controller(router => {
                             msg: "User does not belong to feed's owners.",
                             owners: result.owners,
                             user: req.user,
-                            truthiness: result.owners.indexOf(req.user._id)
+                            truthiness: result.owners.reduce((prev, cur) => prev || cur.username === req.user.username, false)
                         });
                     }
                 }
@@ -103,7 +100,7 @@ export default new Controller(router => {
 			else if (!result)
 				res.status(404).send();
 			else {
-                if (result.owners.map(o => o._id.toString()).indexOf(req.user._id.toString()) !== -1) {
+                if (result.owners.reduce((prev, cur) => prev || cur.username === req.user.username, false)) {
                     Feed.findOneAndUpdate(
                         {_id: req.params.feedId},
                         req.body,
@@ -118,7 +115,7 @@ export default new Controller(router => {
                         msg: "User does not belong to feed's owners.",
                         owners: result.owners,
                         user: req.user,
-                        truthiness: result.owners.indexOf(req.user._id)
+                        truthiness: result.owners.reduce((prev, cur) => prev || cur.username === req.user.username, false)
                     });
                 }
             }
