@@ -45,6 +45,7 @@ export default new Controller(router => {
         Feed.findOne(req.params.feedId)
             .populate('owners')
             .exec(function(err, result) {
+                console.log(result.owners, req.user.username);
                 if (err)
                     res.status(500).send(err);
                 else if (!result)
@@ -104,8 +105,9 @@ export default new Controller(router => {
                     Feed.findOneAndUpdate(
                         {_id: req.params.feedId},
                         req.body,
-                        {new: true},
-                        function (err, result2) {
+                        {new: true})
+                    .populate('owners')
+                    .exec(function (err, result2) {
                             if (err)
                                 res.status(500).send(err);
                             res.status(200).send(result2);
