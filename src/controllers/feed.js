@@ -67,16 +67,16 @@ export default new Controller(router => {
                                             res.status(500).send(err3);
                                         else
                                             res.status(200).send(result3);
-                                        if (result.engine)
-                                            Contrib.count({engine: result.engine}, function(err4, result4) {
-                                                console.log(`Found ${result4} contribs using this engine.`);
-                                                if (result4 === 0) {
-                                                    console.log("Deleting engine", result.engine);
-                                                    Engine.findOneAndRemove(result.engine, function(err5, result5) {
-                                                        if (err5) console.error(err5);
-                                                    });
-                                                }
-                                            });
+                                        //if (result.engine)
+                                            //Contrib.count({engine: result.engine}, function(err4, result4) {
+                                            //    console.log(`Found ${result4} contribs using this engine.`);
+                                            //    if (result4 === 0) {
+                                            //        console.log("Deleting engine", result.engine);
+                                            //        Engine.findOneAndRemove(result.engine, function(err5, result5) {
+                                            //            if (err5) console.error(err5);
+                                            //        });
+                                            //    }
+                                            //});
                                     });
                         });
                     } else {
