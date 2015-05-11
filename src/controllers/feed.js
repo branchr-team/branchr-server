@@ -43,6 +43,7 @@ export default new Controller(router => {
 
     router.put('/:feedId/engine', auth, (req, res) => {
         delete req.body._id;
+        console.log("ENGINE UPDATE Y'ALL HERE WE FUCKING GO");
         Feed.findById(req.params.feedId)
             .populate('owners')
             .exec(function(err, result) {
