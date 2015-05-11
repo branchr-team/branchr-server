@@ -34,15 +34,20 @@ export default new Controller(router => {
                 res.status(500).send(err);
             else if (!result)
                 res.status(404).send();
-            else if (result.userId === req.user._id)
-                Contrib.remove(req.params.contribId, function (err, result) {
+            else if (result.creator.toString() === req.user._id.toString())
+                Contrib.findOneAndRemove(req.params.contribId, function (err, result) {
                     if (err)
                         res.status(500).send(err);
                     else
                         res.status(200).send(result);
                 });
             else
-                res.status(403).send();
+                res.status(403).send({
+                    msg: "User is not creator!",
+                    creator: result.creator,
+                    user: req.user,
+                    truthiness: result.creator.toString() === req.user._id.toString()
+                });
         });
     });
 
