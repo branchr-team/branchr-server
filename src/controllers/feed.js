@@ -53,7 +53,7 @@ export default new Controller(router => {
                     res.status(404).send();
                 else {
                     if (result.owners.reduce((prev, cur) => prev || cur.username === req.user.username, false)) {
-                        console.log("Engine update for feed ", result._id, result.engine);
+                        console.log("Engine update for feed ", result._id, result.engine, req.body);
                         Engine.create(req.body, function(err2, result2) {
                             console.log(result2._id);
                             if (err2)
@@ -70,16 +70,16 @@ export default new Controller(router => {
                                             res.status(500).send(err3);
                                         else {
                                             res.status(200).send(result3);
-                                            //if (result.engine)
-                                            //Contrib.count({engine: result.engine}, function(err4, result4) {
-                                            //    console.log(`Found ${result4} contribs using this engine.`);
-                                            //    if (result4 === 0) {
-                                            //        console.log("Deleting engine", result.engine);
-                                            //        Engine.findOneAndRemove(result.engine, function(err5, result5) {
-                                            //            if (err5) console.error(err5);
-                                            //        });
-                                            //    }
-                                            //});
+                                            if (result.engine)
+                                            Contrib.count({engine: result.engine}, function(err4, result4) {
+                                                console.log(`Found ${result4} contribs using this engine.`);
+                                                if (result4 === 0) {
+                                                    console.log("Deleting engine", result.engine);
+                                                    Engine.findOneAndRemove(result.engine, function(err5, result5) {
+                                                        if (err5) console.error(err5);
+                                                    });
+                                                }
+                                            });
                                         }
                                     });
                         });

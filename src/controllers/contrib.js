@@ -69,7 +69,6 @@ export default new Controller(router => {
             {upsert: true}
         )
             .exec(function(err, result) {
-                console.log(err, result);
                 if (err)
                     res.status(500).send(err);
                 else {
