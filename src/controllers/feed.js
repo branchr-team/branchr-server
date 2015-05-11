@@ -41,6 +41,15 @@ export default new Controller(router => {
 		});
 	});
 
+    router.get('/:feedId/engine', auth, (req, res) => {
+        Feed.findOne(req.params.feedId)
+            .populate('owners')
+            .exec(function(err, result) {
+                console.log(result.owners, req.user.username);
+                res.status(200).send();
+            });
+    });
+
     router.put('/:feedId/engine', auth, (req, res) => {
         Feed.findOne(req.params.feedId)
             .populate('owners')
