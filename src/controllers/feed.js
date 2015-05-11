@@ -67,18 +67,28 @@ export default new Controller(router => {
                                     function (err3, result3) {
                                         if (err3)
                                             res.status(500).send(err3);
-                                        else {
+                                        else if (result.engine) {
                                             res.status(200).send(result3);
-                                            if (result.engine)
-                                            Contrib.count({engine: result.engine}, function(err4, result4) {
-                                                console.log(`Found ${result4} contribs using this engine.`);
-                                                if (result4 === 0) {
-                                                    console.log("Deleting engine", result.engine);
-                                                    Engine.findOneAndRemove(result.engine, function(err5, result5) {
-                                                        if (err5) console.error(err5);
-                                                    });
-                                                }
-                                            });
+                                            if (req.query.force) {
+                                                console.log("Forcing update", result._id, result2._id);
+                                                Contrib.update({feed: result._id}, {engine: result2._id}, {multi: true}).exec(function(err, result) {
+                                                    console.log(result, err);
+                                                });
+                                                //Engine.findOneAndRemove(result.engine, function(err5, result5) {
+                                                //    if (err5) console.error(err5);
+                                                //});
+                                            } else {
+                                                //console.log(`Counting engine ${result.engine}`);
+                                                //Contrib.count({engine: result.engine}).exec(function(err4, result4) {
+                                                //    console.log(`Found ${result4} contribs using this engine.`);
+                                                //    if (result4 === 0) {
+                                                //        console.log(`Deleting engine ${result.engine}`);
+                                                //        Engine.findOneAndRemove(result.engine).exec(function(err5, result5) {
+                                                //            if (err5) console.error(err5);
+                                                //        });
+                                                //    }
+                                                //});
+                                            }
                                         }
                                     });
                         });
