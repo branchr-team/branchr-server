@@ -68,11 +68,11 @@ export default new Controller(router => {
                                     function (err3, result3) {
                                         if (err3)
                                             res.status(500).send(err3);
-                                        else if (result.engine) {
+                                        else {
                                             res.status(200).send(result3);
                                             if (req.query.force) {
                                                 console.log("Forcing update", result._id, result2._id);
-                                                Contrib.update({feed: result._id}, {engine: result2._id}, {multi: true}).exec(function(err, result) {
+                                                Contrib.update({feed: result._id}, {engine: result2._id}, {multi: true}).exec(function (err, result) {
                                                     console.log(result, err);
                                                 });
                                                 //Engine.findOneAndRemove(result.engine, function(err5, result5) {
