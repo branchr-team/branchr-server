@@ -10,51 +10,43 @@ export default new Controller(router => {
         let dbQuery = Contrib.findById(req.params.contribId);
         dbQuery.populate('creator', 'username');
         dbQuery.populate('feed', 'name owners');
-        dbQuery.exec(function(err, result) {
-            if (err)
-                res.status(500).send(err);
-            else if (!result)
-                res.status(404).send();
-            else
-                User.populate(result, {path: 'feed.owners', select: 'username'}, function(err2, result2) {
-                    if (err2)
-                        res.status(500).send(err2);
-                    else if (!result2)
-                        res.status(404).send();
-                    else
-                        res.status(200).send(result2);
-                });
-        });
+        return dbQuery.exec()
+            .then(contrib => {
+                if (!contrib)
+                    return Promise.reject({status: 404, msg: "Contrib not found"});
+                return new Promise((resolve, reject) =>
+                    User.populate(contrib, {path: 'feed.owners', select: 'username'}, function(err, result) {
+                        if (err)
+                            reject(err);
+                        else
+                            resolve(result);
+                    })
+                );
+            })
+            .then(contrib => {
+                if (!contrib)
+                    return Promise.reject({status: 404, msg: "Contrib not found"});
+                return contrib;
+            });
     });
 
     // DELETE /contrib/:contribId
-    router.delete('/:contribId', auth, (req, res) => {
-        Contrib.findOne(req.params.contribId, function(err, result) {
-            if (err)
-                res.status(500).send(err);
-            else if (!result)
-                res.status(404).send();
-            else if (result.userId === req.user._id)
-                Contrib.remove(req.params.contribId, function (err, result) {
-                    if (err)
-                        res.status(500).send(err);
-                    else
-                        res.status(200).send(result);
-                });
-            else
-                res.status(403).send();
-        });
-    });
+    router.delete('/:contribId', auth, (req, res) =>
+        Contrib.findOne(req.params.contribId).exec()
+            .then(contrib => {
+                if (!contrib)
+                    return Promise.reject({status: 404, msg: "Contrib not found"});
+                else if (contrib.userId === req.user._id)
+                    return Contrib.remove(req.params.contribId).exec();
+                else
+                    return Promise.reject({status: 403});
+            })
+    );
 
     // POST /contrib
     router.post('', auth, (req, res) => {
         req.body.userId = req.user._id;
-        Contrib.create(req.body, function(err, result) {
-            if (err)
-                res.status(500).send(err);
-            else
-                res.status(200).send(result);
-        });
+        return Contrib.create(req.body).exec();
     });
 
     router.post('/:contribId/vote/:vote', auth, (req, res) => {
@@ -63,25 +55,15 @@ export default new Controller(router => {
             {$set: {contrib: req.params.contribId, user: req.user._id, vote: req.params.vote}},
             {upsert: true}
         )
-            .exec(function(err, result) {
-                console.log(err, result);
-                if (err)
-                    res.status(500).send(err);
-                else {
-                    let diff = (result)? req.params.vote - result.vote : req.params.vote;
-                    Contrib.findOneAndUpdate(
-                        {_id: req.params.contribId},
-                        {$inc: {score: diff}},
-                        {new: true}
-                    )
-                        .exec(function(err, result) {
-                            if (err)
-                                res.status(500).send(err);
-                            else
-                                res.status(200).send(result);
-                        });
-                }
-        });
+            .exec()
+            .then(vote => {
+                let diff = (vote)? req.params.vote - vote.vote : req.params.vote;
+                return Contrib.findOneAndUpdate(
+                    {_id: req.params.contribId},
+                    {$inc: {score: diff}},
+                    {new: true}
+                ).exec();
+            })
     });
 
 
@@ -96,19 +78,20 @@ export default new Controller(router => {
         let dbQuery = Contrib.find(query);
         dbQuery.populate('creator', 'username');
         dbQuery.populate('feed', 'name owners');
-        dbQuery.exec(function(err, result) {
-            if (err)
-                res.status(500).send(err);
-            else
-                User.populate(result, {path: 'feed.owners', select: 'username'}, function(err2, result2) {
-                    if (err2)
-                        res.status(500).send(err2);
-                    else if (!result2)
-                        res.status(404).send();
-                    else
-                        res.status(200).send(result2);
-                });
-        });
+        return dbQuery.exec()
+            .then(contribs => {
+                return new Promise((resolve, reject) =>
+                    User.populate(contribs, {path: 'feed.owners', select: 'username'}, function(err, result) {
+                        if (err)
+                            reject(err);
+                        else
+                            resolve(result);
+                    })
+                );
+            })
+            .then(contribs => {
+                return contribs;
+            });
     });
 
 

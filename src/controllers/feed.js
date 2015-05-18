@@ -5,119 +5,77 @@ import {Contrib} from 'models/contrib';
 import {auth} from 'controllers/auth';
 export default new Controller(router => {
 
-	router.get('/:feedId', (req, res) => {
-		Feed.findById(req.params.feedId)
-            .populate('owners', 'username')
-            .exec(function(err, result) {
-			if (err) 
-				res.status(500).send(err);
-			else if (!result)
-				res.status(404).send();
-			else
-				res.status(200).send(result);
-		});
-	});
+    router.get('/:feedId', (req, res) =>
+            Feed.findById(req.params.feedId)
+                .populate('owners', 'username')
+                .exec()
+    );
 
-	router.get('/', (req, res) => {
-		Feed.find({})
-            .populate('owners')
-            .exec(function(err, results) {
-			if (err) 
-				res.status(err.status || 500).send(err);
-			else
-				res.status(200).send(results);
-		});
-	});
+    router.get('/', (req, res) =>
+            Feed.find({})
+                .populate('owners')
+                .exec()
+    );
 
 	// Make a new Feed
 	router.post('', auth, (req, res) => {
-		if (!req.body.owners) req.body.owners = [req.user._id];
-		Feed.create(req.body, function(err, result) {
-			if (err) 
-				res.status(500).send(err);
-			else
-				res.status(200).send(result);
-		});
+		if (!req.body.owners)
+            req.body.owners = [req.user._id];
+		return Feed.create(req.body).exec();
 	});
 
-    router.put('/:feedId/engine', auth, (req, res) => {
+    router.put('/:feedId/engine', auth, (req, res) =>
         Feed.findOne(req.params.feedId)
             .populate('owners')
-            .exec(function(err, result) {
-                if (err)
-                    res.status(500).send(err);
-                else if (!result)
-                    res.status(404).send();
-                else {
-                    if (result.owners.map(o => o._id.toString()).indexOf(req.user._id.toString()) !== -1) {
-                        Engine.create(req.body, function(err2, result2) {
-                            if (err2)
-                                res.status(500).send(err2);
-                            else if (!result2)
-                                res.status(404).send();
-                            else
-                                Feed.findOneAndUpdate(
-                                    {_id: req.params.feedId},
-                                    {$set: {engine: result2._id}},
-                                    {new: true},
-                                    function (err3, result3) {
-                                        if (err3)
-                                            res.status(500).send(err3);
-                                        res.status(200).send(result3);
-                                        if (result.engine)
-                                            Contrib.count({engine: result.engine}, function(err4, result4) {
-                                                console.log(`Found ${result4} contribs using this engine.`);
-                                                if (result4 === 0) {
-                                                    console.log("Deleting engine", result.engine);
-                                                    Engine.findOneAndRemove(result.engine, function(err5, result5) {
-                                                        if (err5) console.error(err5);
-                                                    });
-                                                }
-                                            });
-                                    });
-                        });
-                    } else {
-                        res.status(403).send({
-                            msg: "User does not belong to feed's owners.",
-                            owners: result.owners,
-                            user: req.user,
-                            truthiness: result.owners.indexOf(req.user._id)
-                        });
-                    }
-                }
-            });
-    });
+            .exec()
+            .then(feed => {
+                if (!feed)
+                    return Promise.reject({status: 404, msg: "User not found"});
+                if (feed.owners.map(o => o._id.toString()).indexOf(req.user._id.toString()) !== -1)
+                    return Engine.create(req.body).exec();
+                else
+                    return Promise.reject({status: 403, msg: "User does not belong to feed's owners."})
+            })
+            .then(engine => {
+                if (!engine)
+                    return Promise.reject({status: 404});
+                return Feed.findOneAndUpdate(
+                    {_id: req.params.feedId},
+                    {$set: {engine: engine._id}},
+                    {new: true}
+                );
+            })
+            //.then(updatedFeed => {
+            //    if (result.engine)
+            //        Contrib.count({engine: result.engine}, function(err4, result4) {
+            //            console.log(`Found ${result4} contribs using this engine.`);
+            //            if (result4 === 0) {
+            //                console.log("Deleting engine", result.engine);
+            //                Engine.findOneAndRemove(result.engine, function(err5, result5) {
+            //                    if (err5) console.error(err5);
+            //                });
+            //            }
+            //        });
+            //})
+    );
 
 	// Update an existing Feed
-	router.put('/:feedId', auth, (req, res) => {
-		Feed.findOne(req.params.feedId)
-            .populate('owners')
-            .exec(function(err, result) {
-			if (err) 
-				res.status(500).send(err);
-			else if (!result)
-				res.status(404).send();
-			else {
-                if (result.owners.map(o => o._id.toString()).indexOf(req.user._id.toString()) !== -1) {
-                    Feed.findOneAndUpdate(
-                        {_id: req.params.feedId},
-                        req.body,
-                        {new: true},
-                        function (err, result2) {
-                            if (err)
-                                res.status(500).send(err);
-                            res.status(200).send(result2);
-                        });
-                } else {
-                    res.status(403).send({
-                        msg: "User does not belong to feed's owners.",
-                        owners: result.owners,
-                        user: req.user,
-                        truthiness: result.owners.indexOf(req.user._id)
-                    });
-                }
-            }
-		});
-	});
+    router.put('/:feedId', auth, (req, res) =>
+            Feed.findOne(req.params.feedId)
+                .populate('owners')
+                .exec()
+                .then(feed => {
+                    if (!feed)
+                        return Promise.reject({status: 404, msg: "User not found"});
+                    else if (feed.owners.map(o => o._id.toString()).indexOf(req.user._id.toString()) !== -1)
+                        return Feed.findOneAndUpdate(
+                            {_id: req.params.feedId},
+                            req.body,
+                            {new: true}
+                        ).exec();
+                    else
+                        return Promise.reject({status: 403, msg: "User does not belong to feed's owners."})
+                })
+    );
 
 });

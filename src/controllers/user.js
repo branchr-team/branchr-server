@@ -5,76 +5,72 @@ import {auth} from 'controllers/auth';
 
 export default new Controller((router) => {
 
-	router.get('/:username', (req, res) => {
-		User.findOne(req.params.username, function(err, result) {
-			if (err) 
-				res.status(500).send(err);
-			else if (!result)
-				res.status(404).send();
-			else
-				res.status(200).send(result.toJSON());
-		});
-	});
+	router.get('/:username', (req, res) =>
+		User.findOne(req.params.username).exec()
+			.then(user => {
+				if (!user)
+					return Promise.reject({status: 404, msg: "User not found"});
+				return Promise.resolve(user.toJSON());
+			})
+	);
 
-	router.get('', auth, (req, res) => {
-		User.findOne(req.user._id, function(err, result) {
-			if (err) 
-				res.status(500).send(err);
-			else if (!result)
-				res.status(404).send();
-			else
-				res.status(200).send(result.toJSON());
-		});
-	});
+	router.get('', auth, (req, res) =>
+		User.findOne(req.user._id).exec()
+			.then(user => {
+				if (!user)
+					return Promise.reject({status: 404, msg: "User not found"});
+				return Promise.resolve(user.toJSON());
+			})
+	);
 
 	router.post('/:username', (req, res) => {
 		req.body.username = req.params.username;
 		req.body.passHash = bcrypt.hashSync(req.body.password);
-		User.count({username: req.params.username}, function(err, result) {
-			if (err) 
-				res.status(500).send(err);
-			else if (result != 0)
-				res.status(400).send({msg: "username already exists"});
-			else
-				User.create(req.body, function(err, result) {
-					if (err) 
-						res.status(500).send(err);
-					else if (!result)
-						res.status(404).send();
-					else
-						res.status(200).send(result);
-				});
-		});
+		return User.count({username: req.params.username}).exec()
+			.then(result => {
+				if (result != 0)
+					return Promise.reject({status: 400, msg: "Username already exists"});
+				return User.create(req.body).exec();
+			})
+			.then(user => {
+				if (!user)
+					return Promise.reject({status: 404, msg: "User not found"});
+				return Promise.resolve(user.toJSON());
+			});
 	});
 
 	router.put('/:username', auth, (req, res) => {
 		if (req.user.username !== req.params.username)
-			return res.status(403).send();
+			return Promise.reject({status: 403});
 		if (req.body.password)
-			req.body.passHash = bcrypt.hashSync(req.body.password);
-		User.findOneAndUpdate(
-			{username: req.params.username}, 
-			req.body, 
-			{new: true, upsert: true}, 
-			function(err, result) {
-				if (err) 
-					res.status(err.status || 500).send(err);
-				else if (!result)
-					res.status(404).send();
-				else
-					res.status(200).send(result);
+			return new Promise(
+				(resolve, reject) => 
+				bcrypt.hash(req.body.password, null, null, function(err, hash) {
+					if (err)
+						reject(err);
+					else
+						resolve(hash);
+				})
+			)
+			.then(hash => {
+				req.body.passHash = hash;
+				return User.findOneAndUpdate(
+					{username: req.params.username}, 
+					req.body, 
+					{new: true, upsert: true}
+				);
+			})
+			.then(user => {
+				if (!user)
+					return Promise.reject({status: 404, msg: "User not found"});
+				return Promise.resolve(user.toJSON());
 			});
+        else
+            return Promise.reject({status: 400, msg: "Password is required"})
 	});
 
-	router.delete('/:username', (req, res) => {
-		User.findOneAndRemove({username: req.params.username}, function(err, result) {
-			if (err) 
-				res.status(500).send(err);
-			else if (!result)
-				res.status(404).send();
-			else
-				res.status(200).send(result);
-		});
-	});
+	router.delete('/:username', (req, res) =>
+		User.findOneAndRemove({username: req.params.username}).exec()
+	);
 
 });

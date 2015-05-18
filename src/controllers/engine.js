@@ -3,15 +3,13 @@ import {Engine} from 'models/engine';
 
 export default new Controller(router => {
 
-	router.get('/:engineId', (req, res) => {
-		Engine.findById(req.params.engineId, function(err, result) {
-			if (err) 
-				res.status(500).send(err);
-			else if (!result)
-				res.status(404).send();
-			else
-				res.status(200).send(result);
-		});
-	});
+    router.get('/:engineId', (req, res) =>
+        Engine.findById(req.params.engineId).exec()
+            .then(engine => {
+                if (!engine)
+                    return Promise.reject({status: 404, msg: "User not found"});
+                return engine;
+            })
+    );
 
 });

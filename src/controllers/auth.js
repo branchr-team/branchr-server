@@ -6,77 +6,82 @@ export function auth(req, res, next) {
 	User.findOne({
 		username:   req.get('X-Username'),
 		token:      req.get('X-Token')
-	}, function(err, result) {
-		if (err) 
+	}).exec()
+		.then(result => {
+			if (!result)
+				res.status(401).send();
+			else {
+				req.user = result.toObject();
+				next();
+			}
+		})
+		.catch(err => {
 			res.status(500).send(err);
-		else if (!result)
-			res.status(401).send();
-		else {
-			req.user = result.toObject();
-			next();
-		}
-	});
+		});
 }
 
 export default new Controller((router) => {
 
-	router.post('/login', (req, res) => {
-		User.findOne({username: req.body.username}, function(err, result) {
-			if (err) 
-				res.status(500).send(err);
-			else if (!result)
-				res.status(404).send();
-			else 
-				bcrypt.compare(req.body.password, result.passHash, (err, match) => {
-					if (err) 
-						res.status(500).send(err);
-					else if (match)
-						bcrypt.hash(
-							result.username+result.passHash+Date.now(), 
+	router.post('/login', (req, res) =>
+		User.findOne({username: req.body.username}).exec()
+			.then(user => {
+				if (!user)
+					return Promise.reject({status: 404, msg: "User not found"});
+				return new Promise((resolve, reject) => {
+					bcrypt.compare(
+						req.body.password, 
+						user.passHash, 
+						(err, match) => {
+							if (err) 
+								reject(err);
+							else if (match)
+								resolve([user, match]);
+							else 
+								reject({status: 400, msg: "Password did not match"});
+						})
+				});
+			})
+			.then(([user, match]) => {
+				return new Promise((resolve, reject) => {
+					bcrypt.hash(
+						user.username+user.passHash+Date.now(), 
 						null, null,
-						(err, hash) => User.findOneAndUpdate(
-							{username: req.body.username}, 
-							{token: hash}, 
-							{new: true}, 
-							function(err, result2) {
-								if (err) 
-									res.status(500).send(err);
-								else if (!result2)
-									res.status(404).send();
-								else
-									res.status(200).send({
-										user: result2,
-										token: result2.token
-									});
-							})
-						);
-				   else 
-					   res.status(401).send({msg: 'password did not match'});
-				})
-		});
-	});
-
-	router.post('/logout', (req, res) => {
-		User.findOne({username: req.body.username}, function(err, result) {
-			if (err) 
-				res.status(500).send(err);
-			else if (!result)
-				res.status(404).send();
-			else 
-				User.findOneAndUpdate(
+						(err, hash) => {
+							if (err)
+								reject(err);
+							else
+								resolve(hash);
+						}
+					);
+				});
+			})
+			.then(hash => {
+				return User.findOneAndUpdate(
 					{username: req.body.username}, 
-					{token: null}, 
-					{new: true}, 
-					function(err, result2) {
-						if (err) 
-							res.status(500).send(err);
-						else if (!result2)
-							res.status(404).send();
-						else
-							res.status(200).send(result2);
-					}
-				);
-		});
-	});
+					{token: hash}, 
+					{new: true}).exec();
+			})
+			.then(result => {
+				if (!result)
+					return Promise.reject({status: 404, msg: "User not found"});
+				else
+					return Promise.resolve({
+						user: result,
+						token: result.token
+					});
+			})
+		);
+
+		router.post('/logout', (req, res) =>
+			User.findOne({username: req.body.username}).exec()
+			.then(user => {
+				if (!user)
+					return Promise.reject({status: 404, msg: "User not found"});
+				return User.findOneAndUpdate(
+					{username: req.body.username}, 
+					{token: null},
+					{new: true}).exec();
+			})
+		);
 
 });
